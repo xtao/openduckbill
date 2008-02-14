@@ -1,0 +1,116 @@
+= openduckbill =
+
+= Introduction =
+
+  Openduckbill is a simple command line backup tool which is capable of monitoring the files/directories marked for backups for any changes and transfering these changes either to a local backup directory or a remote NFS exported partition or to a remote rsync server using the very common, rsync command.
+
+  Openduckbill thus maintains an exact copy of your data at the destination backup.
+
+= Features =
+
+  * Supports recursive and non-recursive backup of files/directories
+  * Does filesystem monitoring
+    * Openduckbill uses pyinotify for filesystem monitoring.
+    * Any directory marked for backup, will be monitored for changes, and the changes will be synced to the backup destination regularly.
+  * Three different modes of backup. Supports backup to
+    * Local directory
+    * NFS mount
+    * Rsync server (using rsync over ssh)
+  * Include/exclude files/directories from backup
+    * Supports including/excluding files/directories from backup using pattern matches
+  * In NFS backup mode, the NFS partition is auto mounted.
+  * Ability to remove files/directories which are not part of backup schedule from backup partition. (Currently this feature supported only in LOCAL and NFS backup modes.)
+  * Uses YAML based config file
+    * Easy to read and modify
+  * Uses GUI dialog box to display critical information
+  * Has built-in logging system
+  * Daemon mode and Non-daemon mode
+  * Extensive DEBUG info mode
+
+= Scenarios =
+
+= Using openduckbill - for the impatient =
+
+
+= Using openduckbill - Details =
+
+  Openduckbill is written entirely in python and is a command line tool. There are two modes of operations, daemon (background) mode and non-daemon (foreground) mode. As name suggests when openduckbill is run in daemon mode (command line argument -D), the program forks into background after doing the initial checks and starts doing backup according to the criterias specified in the configuration file. In Non-daemon mode (command line argument -F) the code runs in foreground and prints messages to console. Daemon mode is the default for openduckbill, however it could be run in as non-daemon mode for debugging purposes. In either cases, openduckbill writes log messages to its logfile (~/.openduckbill/messages.log)
+
+  Openduckbill reads its configuration from its config file (config.yaml). By default, openduckbill during its startup, looks for config.yaml in the `present working directory`. If it doesn't find the config file, checks whether it exists in ~/.openduckbill/config.yaml. During installation, the install script places config.yaml in ~/.openduckbill/config.yaml. The config file, as the extenstion suggests is an YAML file. Before starting up openduckbill, you might want to modify config.yaml to suit your needs. More about config.yaml in 'Understanding the Config File' Section. Before starting to use openduckbill, you need to setup the config.yaml to suit your needs. 
+
+== Understanding the Config File ==
+  
+  There are four different sections to the config.yaml file. These are the Global, Method, Exclude and Entry sections. These sections, along with the parameters used and explained below.
+
+=== The YAML format ===
+  
+  You might probably be familiar with or heard about XML format. Simply put YAML is a much simpler form of XML, without any XML tags. The confi file is represented in free form text and sections can be described by indentation.
+
+=== The Global section ===
+
+  This section defines parameters required for initializing the program, also it indicates the backup method to be used for performing backup of data.
+{{{
+	global :
+	 backupmethod : NFS
+	 syncinterval : 300
+	 commitchanges : 64
+	 retainbackup : yes
+	 retentiontime : 604800
+}}}
+  The global section starts with the keyword "global". All parameters belonging to global section are defined below it as indicated. Be aware, that indendation plays important role in a YAML file. 
+
+    * *backupmethod* (Required parameter) : LOCAL | NFS | RSYNC _Default : LOCAL_
+      This parameter describes the backup method to be used for performing the actual data backup. Possible options are LOCAL, NFS or RSYNC. If LOCAL is specified, the data is backed up to a local directory specified in "method" section (described below) of the config.yaml. If NFS is specified, data is backed up to a locally mounted NFS exported mount. If RSYNC is specified, then the data is transferred to a remote server using rsync (over ssh). You can select only one type of "backupmethod" at any time.
+
+    * *syncinterval* (Optional parameter) : Number _Default : 300_
+      Openduckbill checks every "syncinterval" seconds whether any files or directory contents marked for backup has been modified. If there are pending changes, then these are synced to the backup destination (LOCAL, NFS or RSYNC). This is an optional parameter and a default value (300 seconds) is assigned during initialization, if not specified in config.yaml.
+
+    * *commitchanges* (Optional parameter) : Number _Default : 64_
+      This is another criteria depending on which openduckbill syncs data to the backup destination. As mentioned above, openduckbill checks every "syncinterval" seconds whether there are any changes in the filesystem that needs to be synced to the backup destination. However, before performing the sync, openducbill checks whether the number of modifications (filesystem events) is greater than "commitchanges" value. Sometimes, there might not be enough changes to sync and it would be nice to collect all changes and perform the sync. "commitchanges" value is by default set as 64 and can be any value above 5. The value for "commitchanges" usually depends on the filesystem activity. If there is low filesystem activiy on files/directories marked for backup, perhaps the default value is fine. Each filesystem event is counted by openduckbill, for example, when you write to a file, there are some filesytem events like, OPEN, MODIFY, CLOSE etc. All such changes are considered by openduckbill. You may safely leave the value at the default. 
+
+     Also note that when openduckbill notices that there are some changes made, but not greater than "commitchanges" and there is no further filesystem activity for long time, then all pending changes will be synced to backup destination.
+
+    * *retainbackup* (Optional parameter) : yes | no [Default : yes]
+      This parameter represents another interesting feature of openduckbill. Openduckbill is capable of removing old files, which are no longer part of any backup schedule. For this to happen, the parameter "retainbackup" needs to be made "no". By default "retainbackup" is "yes", which tells openducbill to ignore files which don't belong to backup schedules. However, if "retainbackup" is "no", then openduckbill checks for files/directories not part of the backup schedule and removes them if they are older than "retentiontime" seconds. "retentiontime" is explained below. Currently, deleting old files are supported only on backup methods LOCAL and NFS. 
+
+    * *retentiontime* (Optional parameter) : Number [Default : 604800]
+      Used by openduckbill to verify the age of a file/directory marked for deletion. When "retainbackup" is "no", openduckbill looks for files/directories not part of the backup schedule, and removes any file, directory which is older than "retentiontime" seconds. The default value is 604800, which is equivalent to 7 days. Openduckbill checks the age of the files/directories, once in a while (a multiple of "syncinterval" seconds)
+
+=== The Method Section ===
+
+  The method section describes the type of backup method which will be used by openduckbill to transfer the data to the backup destination. As mentioned earlier, we have three different methods available. These are one of LOCAL, NFS or RSYNC. The "method" section is defined below the "global" section. You might find that the default config file installed will have all three backup method sections defined. However, only one will be used by openduckbill. And this one paritcular method section is chosen depending upon the value indicated against parameter "backupmethod" in the "global" section. Assuming you defined "backupmethod : LOCAL", openduckbill will simply look for the method section named "LOCAL" and read in the parameters of that section. Other defined backup method sections are simply ignored.
+
+==== The LOCAL backup method section ====
+
+  As name suggests, this "method" section is chosen when "backupmethod" is defined as "LOCAL". Do take care of the indendation while modifying the contents of the config file. LOCAL backup can be used in situations, where you have lots of disk space or have an huge external hard disk attached to you linux workstation/laptop/box, and would like to dump data in there.
+{{{
+	LOCAL :
+	 localmount : "/backup/odb_backup"
+}}}
+  * *localmount* (Required parameter) : Directory [Default : arbitrary path]
+   This parameter is used by openduckbill as a backup path. More clearly explained, this directory would be used by openduckbill as the root of its backup destination. Make sure that the user executing openduckbill has permissions to write to this directory.
+
+==== The NFS backup method section ====
+
+  This "method" section is selected when "backupmethod" is defined as "NFS". In this scenario, openduckbill mounts the NFS export (remotemount) from the NFS server (server) on the local linux machine at a mount point (localmount). Use this backup method, when you have an NFS server configured where you can dump your backup. Make sure user process owning openduckbill has permissions to write to the NFS export.
+{{{
+	NFS :
+	 server : "server1.mydomain.com"
+	 remotemount : "/backup/odb_server1"
+	 localmount : "/mnt/odb_mount"
+	 nfsmountoptions : "rw,nosuid,soft"
+}}}
+  * *server* (Required parameter) : Hostname [Default : arbitrary hostname]
+   Indicates the hostname of the NFS server, which will be providing the NFS export for dumping data backup. Could be an IP address as well.
+
+  Openduckbill tries to mount the remote NFS mount locally using the mount command and for mounting partitions, the user need to have root previleges. So when running openduckbill as a regular user, you need to have a special entry in /etc/fstab file. This entry should be
+{{{
+	server:remotemount localmount  nfs  nfsmountoptions,user,auto  0 0
+}}}
+  This will enable a regular user to run the mount command. If you fail to add this entry to /etc/fstab, openduckbill won't be able to mount the NFS partition, and would have to be manually mounted as root user everytime, before running openduckbill. Make sure to provide the same values that you specify in the NFS method section mentioned above.
+
+==== The LOCAL backup method section ====
+	RSYNC :
+	 server : "server2.mydomain.com"
+	 sshport : 22
+	 remotemount : "/backup/odb_server2"
