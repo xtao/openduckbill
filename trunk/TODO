@@ -1,15 +1,11 @@
 
   - Support :
-    - Rsync
     - Rsync with ssh (done)
-    - Version control in client, server
+    - Version control in client/server
     - Per entry exclude, include options (done)
     - Easy restore
     - Compression
-
-  - Scenario :
-    - Local backup directory got deleted?
-    - Check disk space at remote end, before backup?
+    - Destination disk size checks
 
   - Add :
     - README
