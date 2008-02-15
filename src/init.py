@@ -164,7 +164,7 @@ class InitData:
       - Verify value provided for syncinterval
         - Defaults to 300 seconds, if not provided
       - Verify value provided for commitchanges
-        - Defaults to 512, if not provided
+        - Defaults to 64, if not provided
       - Verify value provided for retainbackup
         - Defaults to True, if not provided
       - Verify value provided for retentiontime
@@ -229,7 +229,7 @@ class InitData:
     try:
       self.commitchanges = self.configdata['global']['commitchanges']
       if self.commitchanges is None or not self.commitchanges:
-        self.commitchanges = 512
+        self.commitchanges = 64
         raise KeyError
       try:
         self.commitchanges = int(self.commitchanges)
@@ -240,7 +240,7 @@ class InitData:
                                 ' too small. (must be > 5)')
         raise KeyError
     except KeyError:
-      self.commitchanges = 512
+      self.commitchanges = 64
       self.log.logger.warning('Please define a valid global variable'
                               ' "commitchanges"')
       self.log.logger.warning('Using default: %s', self.commitchanges)
