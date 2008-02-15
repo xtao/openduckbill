@@ -6,22 +6,21 @@ global :
 # Backup method
 # How we will access the backup server. This can be LOCAL|NFS|RSYNC
 # Also define a section below with server, remote and local mount paths
- backupmethod : NFS
+ backupmethod : LOCAL
 # Time in seconds
- syncinterval : 180
+ syncinterval : 300
 # Wait for these many filesystem changes to occur. Integer
  commitchanges : 64
-# Retain files/directories which are not in the scheduled list? [Boolean]
+# Retain files/directories which are not in the scheduled list? [Boolean] [yes|no]
 # Default is yes
- retainbackup : no
-# [yes|no]
+ retainbackup : yes
 # When entries are removed from backup schedule, these remain
 # in the backup drive and are no longer backed up. If there are
 # files/directories which are older than "retentiontime" and,
 # not in the schedule (entry list) to be backed up, then these
 # are removed. (seconds) [Default = 7 Days = 604800 Seconds]
 # Valid if "retainbackup" is yes
- retentiontime : 604800 ( 7 days )
+ retentiontime : 604800 
 
 # ----- Backup method declaration section ----
 LOCAL :
