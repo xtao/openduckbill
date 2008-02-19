@@ -738,4 +738,18 @@ class InitData:
         self.log.logger.info('Created backup directory structure in rsync '
                              'server.')
         # We need to make the permissions a bit more stricter while creation.
+        userpath = os.path.dirname(os.path.dirname(self.backupdirpath))
+        cmd = []
+        cmd.extend(self.ssh_cmd)
+        if self.log.debug:
+          ssh_exec_cmd = ['chmod', '-v', '0700', userpath]
+        else:
+          ssh_exec_cmd = ['chmod', '0700', userpath]
+        cmd.extend(ssh_exec_cmd)
+        self.log.logger.debug(cmd)
+        retval = self.help_execute.RunCommandPopen(cmd)
+        if retval:
+          self.log.logger.error('Could not fix permissions on backup path')
+        else:
+          self.log.logger.info('Fixed permissions on backup path')
         return True
