@@ -232,6 +232,8 @@
   * *sshuser* (Optional parameter) : username (Default : None)
   Sometimes, the user executing openduckbill might not have login access to the remote server, but might have access as a different user. Define the parameter "sshuser" to make openduckbill use a different ssh login, than the user running openduckbill.
 
+  Also read [http://code.google.com/p/openduckbill/wiki/OpenduckbillAccessControl access control] section to see how to configure passwordless ssh login (required) and also add access restrictions (recommended) in such a scenario.
+
 === The Global Exclude Section ===
 
   Openduckbill can recursively or non-recursievley back up whole directories. However sometimes, not all files need to be copied. For example if files with extention ".doc" need not be sent to the backup destination (using LOCAL, NFS or RSYNC). In such a case, all that is need to be done is add the pattern (regex) to the global exclude section.
@@ -415,10 +417,10 @@
 = Debugging =
 
   Openduckbill can be run either in DEBUG mode or NO-DEBUG mode. Use the command line argument "-D" to start openduckbill in DEBUG mode. If no flags are passed to openduckbill, it starts in NO-DEBUG mode. Debug mode is useful, if openduckbill hits any issues, and troubleshooting is required. 
-{{(
+{{{
 	openduckbill -D
 	openduckbill -D -F
-}})
+}}}
 
   Openduckbill prints debug messages to the console as well as the log file (~/.openduckbill/messages.log). 
 
@@ -448,4 +450,4 @@
 
   * http://pyinotify.sourceforge.net/
   * http://pyyaml.org/wiki/PyYAML
- - 
+  * http://code.google.com/p/openduckbill/wiki/OpenduckbillAccessControl
