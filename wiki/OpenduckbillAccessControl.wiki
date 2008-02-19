@@ -1,5 +1,4 @@
 = Setting up passwordless ssh login when backup method is RSYNC (over ssh) =
-----
 
   Openduckbill runs in background as a daemon program and is designed to transfer backup data, whenever it finds that some change has been made to the files/directories marked for backup. When the "backupmethod" is selected as RSYNC, openduckbill uses rsync to communicate with the remote ssh server, where it dumps the backup data to a directory specified (remotemount) in config.yaml. However, this kind of backup presents a new hurdle - Openduckbill will need the password of the remote user every time it wants to dump some data. This is rather painful, if the user running openduckbill has to supply his/her password every time. So now, passwordless ssh access needs to be setup which will eliminate the need for the user to supply password when data transfer to remote server is required. So here we setup passwordless ssh using public/private keys. The assumption here is that, the user has a home directory in the remote ssh server, where he/she can place the public key. There are excellent resources out there in the web which mentions how to make this work. But in a nutshell, this is what needs to be done.
 
@@ -19,7 +18,6 @@
   NOTE: Do understand that if someone takes control of the user account on the local box (or has access to your ssh keys), it would now be possible to login to the remote server without password. There are means of restricting access to the remote server, by adding extra options in `server:~/.ssh/authorized_keys`. For example, its possible to configure the ssh on the remote server to run only specific commands. A simple setup to restrict the server to run only rsync commands (from client machine running openduckbill) is described below. If you have reservations in using passwordless ssh, it is then recommended to use NFS backup method.
 
 = Making stricter access controls on server (Optional but recommended)  ==
-----
 
   Tune permissions on the remote side only after openduckbill has started properly and completed the first successful backup. This is necessary since, openduckbill requires to set up a backup path, before starting the actual backup process (using rsync)
 
