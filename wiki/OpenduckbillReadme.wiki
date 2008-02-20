@@ -418,6 +418,11 @@
   Openduckbill always tries to maintain an exact copy of data marked for backup. There is no true (see below paragraph) version support built into openduckbill (is another TODO). So if data has changed at source and this needs to be recovered from openduckbill backup destination, it is not possible to get the old file, if openduckbill has already synced the changes to the backup destination. This can happen, when "syncinterval" is low and by the time, the files are checked out from the backup destination, it might already have been overwritten with a new copy by openduckbill. In such a scenario, openduckbill "syncinterval" could be increased to a higher value like say 1 hour (3600 seconds). Adjust the "commitchanges" value depending on the filesystem activity (Default should be still fine). 
   Another means to enable version support in openduckbill is by enabling the parameter "maintainprevious". Once enabled, openduckbill will also keep a copy of the old file in the backup destination, in addition to the new modified file. The old file is kept with a file extention ".odb~". This parameter thus brings current and previous file version support to openduckbill. Enabling this option, will also increase disk usage considerably at the remote backup destination. Have a look at the notes on "maintainprevious" in *Understanding the config file*.
 
+= Setting up passwordless ssh =
+   
+  This is required when openduckbill operates in "backupmethod", RSYNC. 
+  * http://code.google.com/p/openduckbill/wiki/OpenduckbillAccessControl
+
 = Logging =
  
   Openduckbill has extensive logging capabilities. All log messages are printed in `~/.openduckbill/messages.log`
@@ -528,6 +533,10 @@
 
   In backup method RSYNC, if access controls were set on the remote end, before completing at least one successful backup using openduckbill, then opendukcbill might not have created the remote backup directory. This results in rysnc throwing error messages because of the missing destination. Remove access controls, run openduckbill to complete a successful backup, put the access controls back in place.
 
+=== Recurring ssh password requests ===
+  
+  If you find openduckbill waiting at password prompt, when backup method is selected as RSYNC. The please refer *Setting up passwordless ssh*
+
 _Add more to this section_
 
 = Platforms =
@@ -539,9 +548,9 @@ _Add more to this section_
   Author : Anoop Chandran <anoopj@google.com>
   Copyright (C) 2008 Google Inc.
 
-= Reference =
+= Reference Links =
 
   * http://rsync.samba.org/
+  * http://www.samba.org/rsync/FAQ.html
   * http://pyinotify.sourceforge.net/
   * http://pyyaml.org/wiki/PyYAML
-  * http://code.google.com/p/openduckbill/wiki/OpenduckbillAccessControl
