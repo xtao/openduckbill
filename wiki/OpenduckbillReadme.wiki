@@ -5,13 +5,14 @@
   Openduckbill is a simple command line backup tool which is capable of monitoring the files/directories marked for backups for any changes and transferring these changes either to a local backup directory or a remote NFS exported partition or to a remote rsync server using the very common, rsync command.
 
   As a backup tool, openduckbill can operate in one of the modes mentioned below:
-  * Maintain an exact copy of the ^*^source at the ^*^backup destination
+  * Maintain an exact copy of the source at the backup destination
     * This is the default property
   * Maintain current and previous version of the source at the backup destination
     * Using the "maintainprevious" option. (See *Understanding the Config file*)
 
-  ^*^_Source - File/directory marked for backup_
-  ^*^_Backup destination - The local/remote backup directory_
+  _Source - File/directory marked for backup_
+
+  _Backup destination - The local/remote backup directory_
 
 = Features =
 
@@ -25,7 +26,7 @@
     * Rsync server (using rsync over ssh)
   * Include/exclude files/directories from backup
     * Supports including/excluding files/directories from backup using pattern matches
-  * Supports backup of modified files at the remote backup directory.
+  * Supports maintaining current and previous versions of files at backup destination.
   * In NFS backup mode, the NFS partition is auto mounted.
   * Ability to remove files/directories which are not part of backup schedule from backup partition. (Currently this feature supported only in LOCAL and NFS backup modes.)
   * Uses YAML based config file
@@ -431,10 +432,7 @@
 
   Openduckbill prints debug messages to the console as well as the log file (~/.openduckbill/messages.log). 
 
-= Troubleshooting =
-
-
-= Uninstallation = 
+= Uninstall = 
 
   For uninstalling, all that needs to be done is remove the directory which holds the openduckbill python code. Assuming it was installed in `/usr/local/openduckbill`
 {{{
@@ -453,6 +451,84 @@
   * Support compression at remote end.
   * Ability to check backup destination disk space/quota.
   * Read config during runtime.
+
+= Troubleshooting =
+
+=== install.sh script ===
+
+  * Cannot find installation directory
+    Installation directory needs to be created before running the install script.
+
+  * Permission - Installation directory
+    Check if installation directory is owned by the user running the script. Try running the script as root, if the directory is owned by root.
+
+  * Permission - Symlink `/usr/bin/openduckbill`
+    Script needs to be run as root user for creating link. Or else use the sudo command to run the symlink command (this will be displayed at the console by the install.sh script)
+
+  * Script fails due to reasons not mentioned here.
+  The install script performs following functions
+    * copy `./src/*.py` <installation directory>
+    * chmod 755 <installation directory>/openduckbilld.py
+    * copy ./conf/config.yaml ~/.openduckbill/config.yaml
+    * symlink <installation directory>/openduckbilld.py to /usr/bin/openduckbill
+  Manually perform the above steps to get openduckbill installed.
+
+=== Configuration file ===
+
+  * Config file errors
+{{{
+	[2008-02-20 13:57:40,391] openduckbill: ERROR   : Error in configuration file: config.yaml.rsync, while parsing a block mapping
+	in "config.yaml", line 2, column 1
+        expected <block end>, but found '<block mapping start>'
+	in "config.yaml", line 8, column 2
+}}}
+  These are most likely to be signs of indentation problems. YAML requires that spaces and formatting be taken care strictly. So if the openduckbill complaints about formatting error, verify that there are no stray spaces, unclosed quotes etc anywhere.
+
+  * openduckbill not behaving as it should
+  Boolean parameters should have values with no double qoutes.
+
+  This is correct:
+{{{
+	retainbackup : yes
+}}}
+  This is incorrect:
+{{{
+	retainbackup : "yes"
+}}}
+
+=== Missing Modules ===
+
+  * Pyinotify
+  Message below indicates that pyinotify is not available system or python path
+{{{
+	Error: No module named pyinotify
+	Please install pyinotify for inotify support
+	http://pyinotify.sourceforge.net/
+	Quitting!
+}}}
+  Follow pyinotify install steps in *Installation* section
+
+  * PyYAML
+  Message below indicates that PyYAML is not available system or python path
+{{{
+	Error: No module named yaml
+	Please install PyYaml for YAML support
+	http://pyyaml.org/wiki/PyYAML
+	Quitting!
+}}}
+  Follow PyYAML install steps in *Installation* section
+
+=== Backup failing ===
+
+  * Openduckbill shows error messages in logs:
+{{{
+	[2008-02-17 11:32:29,153] openduckbill: ERROR   : Backup of entry var_run_backup failed. Error code: 23
+}}}
+  Check the log file `~/.openduckbill/messages.log`. Look for rsync error messages. This could be because of permission issues at source or destination. 
+
+  In backup method RSYNC, if access controls were set on the remote end, before completing at least one successful backup using openduckbill, then opendukcbill might not have created the remote backup directory. This results in rysnc throwing error messages because of the missing destination. Remove access controls, run openduckbill to complete a successful backup, put the access controls back in place.
+
+_Add more to this section_
 
 = Platforms =
 
