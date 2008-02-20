@@ -35,6 +35,8 @@
   * Has built-in logging system
   * Daemon mode and Non-daemon mode
   * Extensive DEBUG info mode
+  * Fully client side application
+    * Minimal (or no) on configuration required on server
 
 = Requirements =
 
