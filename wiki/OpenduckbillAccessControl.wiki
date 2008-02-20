@@ -1,3 +1,4 @@
+#summary Setting up passwordless ssh login
 #labels Featured,Phase-Deploy,Phase-Support,README
 = Setting up passwordless ssh login when backup method is RSYNC (over ssh) =
 
