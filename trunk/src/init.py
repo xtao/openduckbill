@@ -90,8 +90,6 @@ class InitData:
       self.log.logger.error('Cannot find umount command')
       self.log.logger.error('Make sure umount is in your $PATH')
       sys.exit(1)
-    # These are not required currently
-    self.fuserbinary = "fusermount"
     # The external app which is used for showing GUI popup message box.
     # Need to replace this with python-gtk (TODO)
     self.gui_helper = 'zenity'
@@ -165,6 +163,8 @@ class InitData:
         - Defaults to 300 seconds, if not provided
       - Verify value provided for commitchanges
         - Defaults to 64, if not provided
+      - Verify value provided for maintainprevious
+        - Defaults to False, if not provided
       - Verify value provided for retainbackup
         - Defaults to True, if not provided
       - Verify value provided for retentiontime
@@ -180,6 +180,7 @@ class InitData:
           'Backup directory path',              # String
           retentiontime,                        # Integer
           retainbackups                         # Boolean
+          maintainprevious                        # Boolean
         ]
       methodlist: List - Details of backup server
         [
@@ -245,6 +246,15 @@ class InitData:
                               ' "commitchanges"')
       self.log.logger.warning('Using default: %s', self.commitchanges)
     try:
+      maintainprevious = self.configdata['global']['maintainprevious']
+      if not self.CheckKeyValue(maintainprevious):
+        raise KeyError
+    except KeyError:
+      self.log.logger.warning('Invalid or no "maintainprevious" key value defined')
+      self.log.logger.warning('Assuming "no"')
+      maintainprevious = False
+    self.log.maintainprevious = maintainprevious
+    try:
       self.retainbackup = self.configdata['global']['retainbackup']
       if not self.CheckKeyValue(self.retainbackup):
         raise KeyError
@@ -257,6 +267,9 @@ class InitData:
         self.log.logger.warning('Deleting old files is not supported yet, in'
                                 ' backup method: RSYNC.')
         self.retainbackup = True
+    if maintainprevious:
+      self.log.logger.warning('Disabling "retainbackup"')
+      self.retainbackup = True
     try:
       self.retentiontime = self.configdata['global']['retentiontime']
       if self.retentiontime is None or not self.retentiontime:
@@ -281,7 +294,8 @@ class InitData:
                                         '__backups__', self.hostname)
     self.globallist.extend([self.backupmethod, self.syncinterval,
                             self.commitchanges, self.backupdirpath,
-                            self.retentiontime, self.retainbackup])
+                            self.retentiontime, self.retainbackup,
+                            maintainprevious])
     self.methodlist.extend([self.backupserver, self.remotemount,
                             self.localmount])
     return self.globallist, self.methodlist

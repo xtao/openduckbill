@@ -69,7 +69,17 @@ else
   echo "$PROG: Install to $DESTDIR was success"
 fi
 
-CONFIG_USER=$USER
+if [ "$USER" == "root" ]; then
+  CONFIG_USER=$SUDO_USER
+  if [ ! $CONFIG_USER ]; then
+    CONFIG_USER=$USER
+  fi
+  RUNNING_AS_ROOT=True
+else
+  CONFIG_USER=$USER
+  RUNNING_AS_ROOT=False
+fi
+
 if [ $CONFIG_USER == "root" ]; then
   CONFIG_HOME="/root"
 else
@@ -93,7 +103,7 @@ CONFIG_USERGRP=`id -g ${CONFIG_USER}`
 chown ${CONFIG_USER}:${CONFIG_USERGRP} ${CONFIG_DIR}/
 chown ${CONFIG_USER}:${CONFIG_USERGRP} ${CONFIG_DIR}/config.yaml*
 
-if [ $CONFIG_USER == "root" ]; then
+if [ $RUNNING_AS_ROOT ]; then
   echo
   echo "$PROG: Creating symlink /usr/bin/openduckbill"
   ln -svf $DESTDIR/openduckbilld.py /usr/bin/openduckbill
