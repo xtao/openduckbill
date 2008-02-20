@@ -80,7 +80,7 @@ Features
     * Daemon mode and Non-daemon mode
     * Extensive DEBUG info mode 
     * Fully client side application
-      * Minimal (or no) on configuration required on server
+      * Minimal (or no) configuration required on server
 
 
 Requirements
