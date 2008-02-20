@@ -75,4 +75,9 @@
 
   Check reference section for more links on how to setup "passwordless ssh", restricting access while using passwordless ssh etc.
 
-= Reference =
+= Reference Links =
+
+  * Using Rsync and SSH: http://troy.jdmz.net/rsync/index.html
+  * rsync Tips & Tricks: http://sial.org/howto/rsync/
+  * Shortest passwordless ssh tutorial, ever : http://blogs.translucentcode.org/mick/archives/000230.html
+  * http://freebsd.peon.net/quickies/21/
