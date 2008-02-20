@@ -4,7 +4,14 @@
 
   Openduckbill is a simple command line backup tool which is capable of monitoring the files/directories marked for backups for any changes and transferring these changes either to a local backup directory or a remote NFS exported partition or to a remote rsync server using the very common, rsync command.
 
-  Openduckbill thus maintains an exact copy of your data at the destination backup.
+  As a backup tool, openduckbill can operate in one of the modes mentioned below:
+  * Maintain an exact copy of the ^*^source at the ^*^backup destination
+    * This is the default property
+  * Maintain current and previous version of the source at the backup destination
+    * Using the "maintainprevious" option. (See *Understanding the Config file*)
+
+  ^*^_Source - File/directory marked for backup_
+  ^*^_Backup destination - The local/remote backup directory_
 
 = Features =
 
@@ -77,7 +84,7 @@
 	      : openduckbill -n (Don't perform any backup (dry-run))
 	      : openduckbill -h (Show this message)
 }}}
-  The install script would copy the default config.yaml file to `~/.openduckbill/`
+  The install script would copy the default config.yaml file to `~/.openduckbill/`.
 
   Openduckbill depends on two other python packages for its functioning. So, to get openduckbill running, these two packages need to be installed, if not already available. (Openduckbill will log errors and abort if any of the packages are missing)
 
@@ -118,7 +125,7 @@
 }}}
 
 = Using openduckbill - for the impatient =
-
+  See section *Configuring openduckbill*
 
 = Using openduckbill - Getting Started =
 
@@ -142,7 +149,7 @@
 	 backupmethod : LOCAL
 	 syncinterval : 300
 	 commitchanges : 64
-	 maintainbackup : no
+	 maintainprevious : no
 	 retainbackup : yes
 	 retentiontime : 604800
 }}}
@@ -159,11 +166,11 @@
 
   Also note that when openduckbill notices that there are some changes made, but not greater than "commitchanges" and there is no further filesystem activity for long time, then all pending changes will be synced to backup destination.
 
-  * *maintainbackup* (Optional parameter) : yes | no (Default : no)
-  Openduckbill maintains an exact copy of the files/directories marked for backup at the backup destination. Whenever there is a change made in the source (file/directory to be backed up), openduckbill syncs the change to the backup destination, depending on the "syncinterval". This parameter "maintainbackup" tells openduckbill to keep a copy of the old file in the backup destination, before syncing the change to the backup directory. Remember that this will increase the disk usage at the backup destination, since openduckbill will maintain the modified as well as older version of the file in backup destination. The old file is copied and maintained with a file extension *.odb~*. If "maintainbackup" was enabled (maintainbackup : yes) earlier, it will result in creation of ".odb~" files at the destination. Now, if "maintainbackup" is disabled (maintainbackup : no), then during the sync all ".odb~" files will be removed. Enabling this parameter will also disable "retainbackup" mentioned below.
+  * *maintainprevious* (Optional parameter) : yes | no (Default : no)
+  By default, openduckbill maintains an exact copy of the files/directories marked for backup at the backup destination. Whenever there is a change made in the source (file/directory to be backed up), openduckbill syncs the change to the backup destination, depending on the "syncinterval". Which means that when a file is deleted from the source, after the sync it will be removed from the backup destination as well (exact copy of source). This parameter "maintainprevious" tells openduckbill to keep a copy of the old file in the backup destination, before syncing the change to the backup directory. Or, in other words, when changes are synced to the backup destination, openduckbill will maintain the current as well as previous version of the file. Remember that this will increase the disk usage at the backup destination, since openduckbill will maintain the modified as well as older version of the file in backup destination. The old file is copied and maintained with a file extension *.odb~*. If "maintainprevious" was enabled (maintainprevious : yes) earlier, it will result in creation of ".odb~" files at the backup destination. Now, if "maintainprevious" is disabled (maintainprevious : no), then during the sync all ".odb~" files will be removed. Enabling this parameter will also disable "retainbackup" mentioned below.
 
   * *retainbackup* (Optional parameter) : yes | no (Default : yes)
-  This parameter represents another interesting feature of openduckbill. Openduckbill is capable of removing old files, which are no longer part of any backup schedule. For this to happen, the parameter "retainbackup" needs to be made "no". By default "retainbackup" is "yes", which tells openducbill to ignore files which don't belong to backup schedules. However, if "retainbackup" is "no", then openduckbill checks for files/directories not part of the backup schedule and removes them if they are older than "retentiontime" seconds. "retentiontime" is explained below. Currently, deleting old files are supported only on backup methods LOCAL and NFS. This is also disabled, if "mainitainbackup" is set to "yes". The reason being, "mainitainbackup" creates additional backup files, which are not present in source directories, thus making these backup files, candidates for deletion.
+  This parameter represents another interesting feature of openduckbill. Openduckbill is capable of removing old files, which are no longer part of any backup schedule. For this to happen, the parameter "retainbackup" needs to be made "no". By default "retainbackup" is "yes", which tells openducbill to ignore files which don't belong to backup schedules. However, if "retainbackup" is "no", then openduckbill checks for files/directories not part of the backup schedule and removes them if they are older than "retentiontime" seconds. "retentiontime" is explained below. Currently, deleting old files are supported only on backup methods LOCAL and NFS. This is also disabled, if "maintainprevious" is set to "yes". The reason being, "maintainprevious" creates additional backup files, which are not present in source directories, thus making these backup files, candidates for deletion.
 
   * *retentiontime* (Optional parameter) : Number (Default : 604800)
   Used by openduckbill to verify the age of a file/directory marked for deletion. When "retainbackup" is "no", openduckbill looks for files/directories not part of the backup schedule, and removes any file, directory which is older than "retentiontime" seconds. The default value is 604800, which is equivalent to 7 days. Openduckbill checks the age of the files/directories, once in a while (a multiple of "syncinterval" seconds)
@@ -311,7 +318,7 @@
          remotemount : "/backup/odb_server2"
 }}}
   * Modify the syncinterval or leave it with the default value.
-  * Choose value of "maintainbackup" as either "yes", if copies of old and new files need to be maintained at the backup location. (See notes in "global" section of `config.yaml`)
+  * Choose value of "maintainprevious" as "yes", if current and previous version of the files need to be maintained at the backup location. (See notes in "global" section of `config.yaml`)
   * Add entries to the "global exclude" section,as required. One entry per line.
   * Add at least one entry to the "entry" section of config.yaml. For example:
 {{{
@@ -408,7 +415,7 @@
 = A Note on backup version support =
 
   Openduckbill always tries to maintain an exact copy of data marked for backup. There is no true (see below paragraph) version support built into openduckbill (is another TODO). So if data has changed at source and this needs to be recovered from openduckbill backup destination, it is not possible to get the old file, if openduckbill has already synced the changes to the backup destination. This can happen, when "syncinterval" is low and by the time, the files are checked out from the backup destination, it might already have been overwritten with a new copy by openduckbill. In such a scenario, openduckbill "syncinterval" could be increased to a higher value like say 1 hour (3600 seconds). Adjust the "commitchanges" value depending on the filesystem activity (Default should be still fine). 
-  Another means to enable version support in openduckbill is by enabling the parameter "maintainbackup". Once enabled, openduckbill will also keep a copy of the old file in the backup destination, in addition to the new modified file. The old file is kept with a file extention ".odb~". Enabling this option, will also increase disk usage considerably at the remote backup destination. Have a look at the notes on "maintainbackup" in *Understanding the config file*.
+  Another means to enable version support in openduckbill is by enabling the parameter "maintainprevious". Once enabled, openduckbill will also keep a copy of the old file in the backup destination, in addition to the new modified file. The old file is kept with a file extention ".odb~". This parameter thus brings current and previous file version support to openduckbill. Enabling this option, will also increase disk usage considerably at the remote backup destination. Have a look at the notes on "maintainprevious" in *Understanding the config file*.
 
 = Logging =
  
@@ -437,6 +444,16 @@
 }}}
   The config and log files are in `~/.openduckbill/`, which can be removed.
 
+= TODO =
+
+  * Easy restore tool (command line/Web GUI)
+  * GUI tool to modify the config.yaml (perhaps using python-gtk)
+  * Desktop panel status monitor for openduckbill
+  * Add better file version support (instead of rsync's backup feature)
+  * Support compression at remote end.
+  * Ability to check backup destination disk space/quota.
+  * Read config during runtime.
+
 = Platforms =
 
   Openduckbill has been tested to work on x86 Linux (Fedora 6, Ubuntu Dapper/Gutsy).
@@ -448,6 +465,7 @@
 
 = Reference =
 
+  * http://rsync.samba.org/
   * http://pyinotify.sourceforge.net/
   * http://pyyaml.org/wiki/PyYAML
   * http://code.google.com/p/openduckbill/wiki/OpenduckbillAccessControl
