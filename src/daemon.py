@@ -705,6 +705,7 @@ class OpenDuckbillMain(init.InitData):
     self.log.logger.debug('Rsync binary path = %s', self.rsync_path)
     self.log.logger.debug('Sync interval = %s', self.glist[1])
     self.log.logger.debug('Commit changes = %s', self.glist[2])
+    self.log.logger.debug('Maintain backup files = %s', self.glist[6])
     self.log.logger.debug('Retain backups = %s', self.glist[5])
     self.log.logger.debug('Retention time = %s', self.glist[4])
     self.log.logger.debug('Exclude list = %s', self.exclist)

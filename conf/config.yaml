@@ -11,6 +11,13 @@ global :
  syncinterval : 300
 # Wait for these many filesystem changes to occur. Integer
  commitchanges : 64
+# Keep a backup of files which were synced to backup destination. The backup
+# files will have a file extention ".odb~". Openduckbill maintains an exact copy
+# of the entries in the backup directory. If "maintainprevious" is specified as "yes"
+# openduckbill will keep another copy of the modified file. In effect, openduckbill
+# will maintain the current and previous version of the modified file at the backup 
+# destination. This will increase the # disk usage at the destination. [Boolean] [yes|no]
+ maintainprevious : no
 # Retain files/directories which are not in the scheduled list? [Boolean] [yes|no]
 # Default is yes
  retainbackup : yes

@@ -93,10 +93,14 @@ class Backup:
         'deleteexc_o': '--delete-excluded',
         'tempdir_o': '--temp-dir=',
         'forcedel_o': '--force',
-        'shell_o': '-e'
+        'shell_o': '-e',
+	'backup_o' : '-b',
+	'backup_suffix_o' : '--suffix=',
+	'backup_suffix_extn' : '.odb~'
     }
     self.dryrun = dryrun
     self.logmsg = log_handle
+    self.maintainprevious = self.logmsg.maintainprevious
     self.shellvar = sh_var
     if self.shellvar:
       self.sshpath = self.shellvar[0]
@@ -185,6 +189,14 @@ class Backup:
         if inc_item:
           cmdarglist.extend(['--include=' + inc_item])
 
+    if self.maintainprevious:
+      cmdarglist.extend([self.rsync_options['backup_o'], 
+                        self.rsync_options['backup_suffix_o'] +
+			self.rsync_options['backup_suffix_extn']])
+    else:
+      cmdarglist.extend([self.rsync_options['delete_o'],
+                         self.rsync_options['deleteafter_o']])
+    
     if cmdarglist:
       cmdarglist.extend([self.rsync_options['relative_o'],
                          self.rsync_options['prsvlinks_o'],
@@ -195,8 +207,6 @@ class Backup:
                          self.rsync_options['prsvdvc_o'],
                          self.rsync_options['tempdir_o'] + '/tmp',
                          self.rsync_options['update_o'],
-                         self.rsync_options['delete_o'],
-                         self.rsync_options['deleteafter_o'],
                          self.rsync_options['deleteexc_o'],
                          self.rsync_options['forcedel_o'],
                          self.rsync_options['excludefile_o'] +
