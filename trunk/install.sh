@@ -54,6 +54,7 @@ $INSTALL_PGM -v $SRCDIR/init.py $DESTDIR || let stat+=1
 $INSTALL_PGM -v $SRCDIR/logger.py $DESTDIR || let stat+=1
 $INSTALL_PGM -v $SRCDIR/openduckbilld.py $DESTDIR || let stat+=1
 $INSTALL_PGM -v $DOCSDIR/README $DESTDIR || let stat+=1
+$INSTALL_PGM -v $DOCSDIR/README.access $DESTDIR || let stat+=1
 
 if [ $stat -gt 0 ]; then
   echo
