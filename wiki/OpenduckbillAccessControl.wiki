@@ -57,10 +57,15 @@
 	    ;;
 	  *)
 	    echo "Access restricted"
+            exit 1
 	    ;;
 	esac 
 }}}
   The variable SSH_ORIGINAL_COMMAND is the command that is going to be executed in the server. In this script, we check if the command is an `rsync --server` command, which is used by openduckbill to transfer data. If it matches the "case", the command is executed else the connection is disconnected. Enabling this script will also block ssh login access from odbuser@odbclient.
+
+  The exit code 1 might be useful if client programs depends on exit codes from the ssh command.
+
+  Obviously, the "case" statement can be altered in variety of methods to make the ssh server respond in different ways.
   * Make sure following are the permissions
 {{{  
     /home/odbuser/.ssh/ 		-> drwx------ [0700]
