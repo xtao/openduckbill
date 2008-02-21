@@ -1,3 +1,7 @@
+Latest Version
+---------------
+
+   The latest version of these docs are here:  http://code.google.com/p/openduckbill/w/list
 
 Setting up passwordless ssh login when backup method is RSYNC (over ssh)
 -------------------------------------------------------------------------
@@ -61,10 +65,15 @@ Making stricter access controls on server (Optional but recommended)
                   ;;
                 *)
                   echo "Access restricted"
+		  exit 1
                   ;;
               esac 
 
     The variable SSH_ORIGINAL_COMMAND is the command that is going to be executed in the server. In this script, we check if the command is an rsync --server command, which is used by openduckbill to transfer data. If it matches the "case", the command is executed else the connection is disconnected. Enabling this script will also block ssh login access from odbuser@odbclient. 
+
+    The exit code 1 might be useful if client programs depends on exit codes  from the ssh command. 
+
+    Obviously, the "case" statement can be altered in variety of methods to make the ssh server respond in different ways.
 
     * Make sure following are the permissions
 
