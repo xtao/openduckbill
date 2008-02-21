@@ -4,7 +4,7 @@
 
 = Introduction =
 
-  Openduckbill is a simple command line backup tool which is capable of monitoring the files/directories marked for backups for any changes and transferring these changes either to a local backup directory or a remote NFS exported partition or to a remote rsync server using the very common, rsync command.
+  Openduckbill is a simple command line backup tool which is capable of monitoring the files/directories marked for backups for any changes and transferring these changes either to a local backup directory or a remote NFS exported partition or to a remote ssh server using the very common, rsync command.
 
   As a backup tool, openduckbill can operate in one of the modes mentioned below:
   * Maintain an exact copy of the source at the backup destination
@@ -25,7 +25,7 @@
   * Three different modes of backup. Supports backup to
     * Local directory
     * NFS mount
-    * Rsync server (using rsync over ssh)
+    * SSH server (using rsync over ssh)
   * Include/exclude files/directories from backup
     * Supports including/excluding files/directories from backup using pattern matches
   * Supports maintaining current and previous versions of files at backup destination.
