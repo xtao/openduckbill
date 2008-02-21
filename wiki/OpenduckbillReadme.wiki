@@ -161,7 +161,7 @@
   The global section starts with the keyword "global". All parameters belonging to global section are defined below it as indicated. Be aware, that indentation plays important role in a YAML file. 
 
   * *backupmethod* (Required parameter) : LOCAL | NFS | RSYNC (Default : LOCAL)
-  This parameter describes the backup method to be used for performing the actual data backup. Possible options are LOCAL, NFS or RSYNC. If LOCAL is specified, the data is backed up to a local directory specified in "method" section (described below) of the config.yaml. If NFS is specified, data is backed up to a locally mounted NFS exported mount. If RSYNC is specified, then the data is transferred to a remote server using rsync (over ssh). You can select only one type of "backupmethod" at any time. When "RSYNC" is chosen as the "backupmethod", the remote server should have same or higher version of ssh/rsync. 
+  This parameter describes the backup method to be used for performing the actual data backup. Possible options are LOCAL, NFS or RSYNC. If LOCAL is specified, the data is backed up to a local directory specified in "method" section (described below) of the config.yaml. If NFS is specified, data is backed up to a locally mounted NFS exported mount. If RSYNC is specified, then the data is transferred to a remote ssh server using rsync (over ssh). You can select only one type of "backupmethod" at any time. When "RSYNC" is chosen as the "backupmethod", the remote server should have same or higher version of ssh/rsync. 
 
   * *syncinterval* (Optional parameter) : Number (Default : 300)
   Openduckbill checks every "syncinterval" seconds whether any files or directory contents marked for backup has been modified. If there are pending changes, then these are synced to the backup destination (LOCAL, NFS or RSYNC). This is an optional parameter and a default value (300 seconds) is assigned during initialization, if not specified in config.yaml.
@@ -224,7 +224,7 @@
 
 ==== The RSYNC backup method section ====
 
-  This is the third type of backup method supported by openduckbill. Openduckbill reads in parameters and their values from this section, if the global parameter "backupmethod" is defined as "RSYNC". In this case, duckbill uses the rsync command on the local machine to transfer backup data to remote server. The remote server should have ssh enabled. Openduckbill is designed to use rsync over ssh. Thus openduckbill ensures that data transfer across boxes are encrypted using "ssh", and also uses the powerful rsync for effectively copying data. Most useful, when you can't reach a remote server through NFS. 
+  This is the third type of backup method supported by openduckbill. Openduckbill reads in parameters and their values from this section, if the global parameter "backupmethod" is defined as "RSYNC". In this case, duckbill uses the rsync command on the local machine to transfer backup data to remote server. The remote server should have sshd server enabled. Openduckbill is designed to use rsync over ssh. Thus openduckbill ensures that data transfer across boxes are encrypted using "ssh", and also uses the powerful rsync for effectively copying data. Most useful, when you can't reach a remote server through NFS. 
 {{{
 	RSYNC :
 	 server : "server2.mydomain.com"
@@ -239,10 +239,10 @@
   The directory on the remote ssh server, where openduckbill will try to dump the backup data. Make sure the user running openduckbill has login permissions as well as write access on the "remotemount" location.
 
   * *sshport* (Optional parameter) : Number (Default : 22)
-  If the remote server is running ssh on a non standard port, use this option to tell openduckbill to use a different port than the standard one (which is, 22)
+  If the remote server is running sshd on a non standard port, use this option to tell openduckbill to use a different port than the standard one (which is, 22)
 
   * *sshuser* (Optional parameter) : username (Default : None)
-  Sometimes, the user executing openduckbill might not have login access to the remote server, but might have access as a different user. Define the parameter "sshuser" to make openduckbill use a different ssh login, than the user running openduckbill.
+  Sometimes, the user executing openduckbill might not have login access to the remote ssh server, but might have access as a different user. Define the parameter "sshuser" to make openduckbill use a different ssh login, than the user running openduckbill.
 
   Also read [http://code.google.com/p/openduckbill/wiki/OpenduckbillAccessControl access control] section to see how to configure passwordless ssh login (required) and also add access restrictions (recommended) in such a scenario.
 
