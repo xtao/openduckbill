@@ -55,12 +55,12 @@ NFS :
 
 # RSYNC over SSH
 RSYNC :
-# Rsync server (FQDN)
+# SSH server (FQDN)
  server : "server2.mydomain.com"
 # ssh server port (mention port number if your server is running on a 
 # non-standard port. Default is 22)
  sshport : 22
-# Remote rsync path
+# Remote directory path on server
  remotemount : "/backup/odb_server2"
 
 # ----- Exclude declaration section ----

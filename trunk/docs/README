@@ -44,9 +44,9 @@ Openduckbill
 Introduction
 -------------
 
-    Openduckbill is a simple command line backup tool which is capable of monitoring the files/directories marked for backups for any changes and transferring these changes either to a local backup directory or a remote NFS exported partition or to a remote rsync server using the very common, rsync command. 
+    Openduckbill is a simple command line backup tool which is capable of monitoring the files/directories marked for backups for any changes and transferring these changes either to a local backup directory or a remote NFS exported partition or to a remote ssh server using the very common, rsync command. 
 
-    As a backup tool, openduckbill can operate in one of the modes mentioned below: 
+    As a backup tool, openduckbill can operate in any one of the modes mentioned below: 
 
     * Maintain an exact copy of the source at the backup destination
           o This is the default property 
@@ -67,7 +67,7 @@ Features
     * Three different modes of backup. Supports backup to
           o Local directory
           o NFS mount
-          o Rsync server (using rsync over ssh) 
+          o SSH server (using rsync over ssh) 
     * Include/exclude files/directories from backup
           o Supports including/excluding files/directories from backup using pattern matches 
     * Supports maintaining current and previous versions of files at backup destination.
@@ -212,7 +212,7 @@ The Global section
 
     * backupmethod (Required parameter) : LOCAL | NFS | RSYNC (Default : LOCAL) 
 
-    This parameter describes the backup method to be used for performing the actual data backup. Possible options are LOCAL, NFS or RSYNC. If LOCAL is specified, the data is backed up to a local directory specified in "method" section (described below) of the config.yaml. If NFS is specified, data is backed up to a locally mounted NFS exported mount. If RSYNC is specified, then the data is transferred to a remote server using rsync (over ssh). You can select only one type of "backupmethod" at any time. When "RSYNC" is chosen as the "backupmethod", the remote server should have same or higher version of ssh/rsync. 
+    This parameter describes the backup method to be used for performing the actual data backup. Possible options are LOCAL, NFS or RSYNC. If LOCAL is specified, the data is backed up to a local directory specified in "method" section (described below) of the config.yaml. If NFS is specified, data is backed up to a locally mounted NFS exported mount. If RSYNC is specified, then the data is transferred to a remote ssh server using rsync (over ssh). You can select only one type of "backupmethod" at any time. When "RSYNC" is chosen as the "backupmethod", the remote server should have same or higher version of ssh/rsync. 
 
     * syncinterval (Optional parameter) : Number (Default : 300) 
 
@@ -289,7 +289,7 @@ The NFS backup method section
 The RSYNC backup method section
 --------------------------------
 
-    This is the third type of backup method supported by openduckbill. Openduckbill reads in parameters and their values from this section, if the global parameter "backupmethod" is defined as "RSYNC". In this case, duckbill uses the rsync command on the local machine to transfer backup data to remote server. The remote server should have ssh enabled. Openduckbill is designed to use rsync over ssh. Thus openduckbill ensures that data transfer across boxes are encrypted using "ssh", and also uses the powerful rsync for effectively copying data. Most useful, when you can't reach a remote server through NFS.
+    This is the third type of backup method supported by openduckbill. Openduckbill reads in parameters and their values from this section, if the global parameter "backupmethod" is defined as "RSYNC". In this case, duckbill uses the rsync command on the local machine to transfer backup data to remote server. The remote server should have sshd enabled. Openduckbill is designed to use rsync over ssh. Thus openduckbill ensures that data transfer across boxes are encrypted using "ssh", and also uses the powerful rsync for effectively copying data. Most useful, when you can't reach a remote server through NFS.
 
             RSYNC :
              server : "server2.mydomain.com"
@@ -306,11 +306,11 @@ The RSYNC backup method section
 
     * sshport (Optional parameter) : Number (Default : 22) 
 
-    If the remote server is running ssh on a non standard port, use this option to tell openduckbill to use a different port than the standard one (which is, 22) 
+    If the remote server is running sshd on a non standard port, use this option to tell openduckbill to use a different port than the standard one (which is, 22) 
 
     * sshuser (Optional parameter) : username (Default : None) 
 
-    Sometimes, the user executing openduckbill might not have login access to the remote server, but might have access as a different user. Define the parameter "sshuser" to make openduckbill use a different ssh login, than the user running openduckbill. 
+    Sometimes, the user executing openduckbill might not have login access to the remote ssh server, but might have access as a different user. Define the parameter "sshuser" to make openduckbill use a different ssh login, than the user running openduckbill. 
 
     Also read access control section to see how to configure passwordless ssh login (required) and also add access restrictions (recommended) in such a scenario. 
 
