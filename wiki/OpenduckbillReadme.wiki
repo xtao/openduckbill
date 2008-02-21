@@ -448,7 +448,7 @@
 
 = Server Requirements = 
 
-  There is little or no configuration required at the server (NFS | SSH) side for openduckbill. As mentioned earlier the openduckbill will be able to perform backup to NFS or SSH (backupmethod : RSYNC) servers. The only requirement for openduckbill, for using the NFS or SSH server, is that the remote directory where data has to be dumped to, should have read and write permission for the user running openduckbill.
+  There is little or no configuration required at the server (NFS | SSH) side for openduckbill. As mentioned earlier openduckbill is capable of doing data backup to NFS or SSH (backupmethod : RSYNC) servers. The only requirement for openduckbill, for using the NFS or SSH server, is that the remote directory where data has to be dumped to, should have read and write permission for the user running openduckbill.
   
   For "backupmethod" as RSYNC, passwordless ssh needs to be configured, else openduckbill will need to be supplied with password of the user, every time a backup is attempted. Check the [http://code.google.com/p/openduckbill/wiki/OpenduckbillAccessControl access control] docs on how to set this up.
 
@@ -609,6 +609,7 @@ _Add more to this section_
 = About =
 
   Author : Anoop Chandran <anoopj@google.com>
+  
   Copyright (C) 2008 Google Inc.
 
 = Reference Links =
