@@ -295,7 +295,7 @@ The NFS backup method section
 The RSYNC backup method section
 --------------------------------
 
-    This is the third type of backup method supported by openduckbill. Openduckbill reads in parameters and their values from this section, if the global parameter "backupmethod" is defined as "RSYNC". In this case, duckbill uses the rsync command on the local machine to transfer backup data to remote server. The remote server should have sshd enabled. Openduckbill is designed to use rsync over ssh. Thus openduckbill ensures that data transfer across boxes are encrypted using "ssh", and also uses the powerful rsync for effectively copying data. Most useful, when you can't reach a remote server through NFS.
+    This is the third type of backup method supported by openduckbill. Openduckbill reads in parameters and their values from this section, if the global parameter "backupmethod" is defined as "RSYNC". In this case, openduckbill uses the rsync command on the local machine to transfer backup data to remote server. The remote server should have sshd enabled. Openduckbill is designed to use rsync over ssh. Thus openduckbill ensures that data transfer across boxes are encrypted using "ssh", and also uses the powerful rsync for effectively copying data. Most useful, when you can't reach a remote server through NFS.
 
             RSYNC :
              server : "server2.mydomain.com"
