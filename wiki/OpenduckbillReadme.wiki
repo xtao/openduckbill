@@ -52,16 +52,20 @@
   * mount/umount commands
   * Root privileges during installation
 
+  _Also see section "Server Requirements"_
+
 = Installation = 
 
   Copy the openduckbill archive into a temporary directory
 {{{
 	$ cp openduckbill-1.0.0.tar.gz /tmp/
+	# cp openduckbill-1.0.0.tar.bz2 /tmp/
 }}}
   Untar the archive
 {{{
 	$ cd /tmp
 	$ tar -xzvf openduckbill-1.0.0.tar.gz
+        # tar -xjvf openduckbill-1.0.0.tar.bz2
 	$ cd openduckbill-1.0.0
 }}}
   Installation is made simple by the bash script `install.sh`. The script takes an argument, which is the directory where openduckbill needs to be installed.
@@ -315,7 +319,7 @@
          localmount : "/mnt/odb_mount"
          nfsmountoptions : "rw,nosuid,soft"
 }}}
-  If RSYNC is selected as backup method, "method" section "RSYNC" need to available. For example:
+  If RSYNC is selected as backup method, "method" section "RSYNC" need to be available. For example:
 {{{
         RSYNC :
          server : "server2.mydomain.com"
@@ -420,6 +424,7 @@
 = A Note on backup version support =
 
   Openduckbill always tries to maintain an exact copy of data marked for backup. There is no true (see below paragraph) version support built into openduckbill (is another TODO). So if data has changed at source and this needs to be recovered from openduckbill backup destination, it is not possible to get the old file, if openduckbill has already synced the changes to the backup destination. This can happen, when "syncinterval" is low and by the time, the files are checked out from the backup destination, it might already have been overwritten with a new copy by openduckbill. In such a scenario, openduckbill "syncinterval" could be increased to a higher value like say 1 hour (3600 seconds). Adjust the "commitchanges" value depending on the filesystem activity (Default should be still fine). 
+
   Another means to enable version support in openduckbill is by enabling the parameter "maintainprevious". Once enabled, openduckbill will also keep a copy of the old file in the backup destination, in addition to the new modified file. The old file is kept with a file extention ".odb~". This parameter thus brings current and previous file version support to openduckbill. Enabling this option, will also increase disk usage considerably at the remote backup destination. Have a look at the notes on "maintainprevious" in *Understanding the config file*.
 
 = Setting up passwordless ssh =
@@ -441,15 +446,50 @@
 
   Openduckbill prints debug messages to the console as well as the log file (~/.openduckbill/messages.log). 
 
-= Uninstall = 
+= Server Requirements = 
 
-  For uninstalling, all that needs to be done is remove the directory which holds the openduckbill python code. Assuming it was installed in `/usr/local/openduckbill`
+  There is little or no configuration required at the server (NFS | SSH) side for openduckbill. As mentioned earlier the openduckbill will be able to perform backup to NFS or SSH (backupmethod : RSYNC) servers. The only requirement for openduckbill, for using the NFS or SSH server, is that the remote directory where data has to be dumped to, should have read and write permission for the user running openduckbill.
+  
+  For "backupmethod" as RSYNC, passwordless ssh needs to be configured, else openduckbill will need to be supplied with password of the user, every time a backup is attempted. Check the [http://code.google.com/p/openduckbill/wiki/OpenduckbillAccessControl access control] docs on how to set this up.
+
+  For "backupmethod" as NFS, the NFS mount should be writable and mountable at the local box. Also an entry need to be added to `/etc/fstab` which allows, the user running openduckbill to mount the NFS export at the local machine. (Also mentioned in "NFS method" section of *Understanding the Config File*)
+
+= Performance =
+
+  Openduckbill uses rsync in the background for transferring data. Rsync is a very powerful tool for doing data transfer. However, the transfer rate largely depends on the network bandwidth available. For obvious reasons, LOCAL backup would be faster. NFS, RSYNC backup would depend on the network latency between the local box and the remote servers (NFS | SSH).
+
+= Security =
+
+  On the remote server (NFS | SSH), openduckbill creates a backup directory path of following format, where "/tmp/odb" is the remotemount parameter mentioned in the `config.yaml`
 {{{
-	$ ps -ef | grep openduckbill
-	$ kill -9 <pid of openduckbill>
-	$ rm -rvi /usr/local/openduckbill/
+	/tmp/odb/<username>/__backups__/<hostname>
 }}}
-  The config and log files are in `~/.openduckbill/`, which can be removed.
+  The permissions on the directory /tmp/odb/<username> is 0700. This is done by openduckbill (using chmod) during the directory creation time (first run). Only the user owning the directory and the super-user will have permissions to access the backup directory. 
+
+   Note: Any access permissions which apply on the server will be applicable to the openduckbill backup path as well.
+
+   Since the only owner of the directory can access the path, multiple users can run openduckbill and can use the same location ("/tmp/odb" in this case) for keeping the backup data.
+{{{
+	/tmp/odb/user1/__backups__/some_random_host/...
+	/tmp/odb/user2/__backups__/some_random_host/...
+	/tmp/odb/user3/__backups__/some_random_host/...
+	/tmp/odb/user4/__backups__/some_random_host/...
+}}}
+   
+  If an user is running openduckbill from multiple hosts, the backup path would be as below:
+{{{
+	/tmp/odb/user1/__backups__/some_random_host_1/...
+	/tmp/odb/user1/__backups__/some_random_host_2/...
+	/tmp/odb/user1/__backups__/some_random_host_3/...
+	/tmp/odb/user2/__backups__/some_random_host/...
+	/tmp/odb/user3/__backups__/some_random_host/...
+	/tmp/odb/user4/__backups__/some_random_host/...
+}}}
+
+= Caveats = 
+
+  * Backup path on the remote server is created depending on the hostname (short hostname) of local machine. If there are hosts with same name, and user tries to run backup from these, chances of possible data corruption is high.
+  * The data placed at the remote end is not encrypted and is stored as regular files/directories (as it was at the source). Openduckbill makes sure, the directory where the data is placed is accessible only to the user running openduckbill. However, if super-user cannot be trusted in the remote system, dumping data to remote is not recommended. 
 
 = TODO =
 
@@ -459,7 +499,8 @@
   * Add better file version support (instead of rsync's backup feature)
   * Support compression at remote end.
   * Ability to check backup destination disk space/quota.
-  * Read config during runtime.
+  * Re-read config during runtime.
+  * Data dumped to the remote, to be encrypted by some secure means.
 
 = Troubleshooting =
 
@@ -541,11 +582,29 @@
   
   If you find openduckbill waiting at password prompt, when backup method is selected as RSYNC. The please refer *Setting up passwordless ssh*
 
+=== Daemon mode error logging ===
+
+  In the daemon mode, openduckbill prints only messages of level warning and above to cnosole (even in debug mode). So if backups fail or openduckbill aborts execution, check the log file `~/.openduckbill/messages.log` for more detailed messages.
+
+=== Log file size ===
+
+  All log messages are sent to `~/.openduckbill/messages.log` and over time, the size of the file can increase. It is safe to truncate the file using the command `echo > messages.log`
+
 _Add more to this section_
 
 = Platforms =
 
   Openduckbill has been tested to work on x86 Linux (Fedora 6, Ubuntu Dapper/Gutsy).
+
+= Uninstall = 
+
+  For uninstalling, all that needs to be done is remove the directory which holds the openduckbill python code. Assuming it was installed in `/usr/local/openduckbill`
+{{{
+	$ ps -ef | grep openduckbill
+	$ kill -9 <pid of openduckbill>
+	$ rm -rvi /usr/local/openduckbill/
+}}}
+  The config and log files are in `~/.openduckbill/`, which can be removed.
   
 = About =
 
