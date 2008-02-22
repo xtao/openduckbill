@@ -568,6 +568,21 @@
 }}}
   Follow PyYAML install steps in *Installation* section
 
+  * Python interpreter missing
+  If openduckbill throws meesages like these
+{{{
+	$ openduckbill -h
+	bash: /usr/bin/openduckbill: /usr/bin/python2.4: bad interpreter: No such file or directory
+}}}
+  Reason is /usr/bin/python2.4 is not installed or perhaps the binary is not provided by the python package installed. Assuming python (v 2.4 or above) is installed
+{{{
+	$ which python
+	/usr/bin/python
+	$ sudo ln -sv /usr/bin/python /usr/bin/python2.4
+	create symbolic link `/usr/bin/python2.4' to `/usr/bin/python'
+}}}
+  If only python 2.5 is installed, then symlink python2.5 to python2.4. Openduckbill was tested on python 2.4 and mileage may vary when using with python2.5
+
 === Backup failing ===
 
   * Openduckbill shows error messages in logs:
