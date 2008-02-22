@@ -446,6 +446,8 @@
 
   Openduckbill prints debug messages to the console as well as the log file (~/.openduckbill/messages.log). 
 
+  Every external command run by openduckbill is logged in the log file, and the output from the command is sent to the log file. Grep for "Command output" string in the log file for these messages.
+
 = Server Requirements = 
 
   There is little or no configuration required at the server (NFS | SSH) side for openduckbill. As mentioned earlier openduckbill is capable of doing data backup to NFS or SSH (backupmethod : RSYNC) servers. The only requirement for openduckbill, for using the NFS or SSH server, is that the remote directory where data has to be dumped to, should have read and write permission for the user running openduckbill.
@@ -485,6 +487,9 @@
 	/tmp/odb/user3/__backups__/some_random_host/...
 	/tmp/odb/user4/__backups__/some_random_host/...
 }}}
+  Openduckbill logs information about the files copied to the backup destination etc to the log file. Since, these information are more or less related to the user, the log file is placed in the home directory of the user running openduckbill.
+
+  Note: Any access permissions which apply to the user's home directory will be applicable to the openduckbill log file as well.
 
 = Caveats = 
 
